@@ -1,0 +1,180 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# Loading the dataset
+df = read.csv('creditcard.csv', header = T)
+head(df)
+dim(df)
+```
+284,807 data entries
+
+```{r}
+summary(df)
+```
+28 different attributes
+
+```{r}
+table(df$Class)
+prop.table(table(df$Class))
+```
+284,315 negative cases (99.827%)
+492 positive cases (0.1727%)
+
+Extremely unbalanced dataset
+
+```{r}
+library(DataExplorer)
+
+plot_bar(df)
+
+df$Class = as.factor(df$Class)
+```
+
+
+```{r}
+
+plot_intro(df)
+```
+No missing values found in the dataset
+
+```{r}
+# Time is irrelevant to the data analysis
+
+carddf = df[, -c(1)]
+names(carddf)
+```
+
+
+
+
+
+```{r}
+# 80-20 split for random (sample()) training and testing set
+
+set.seed(100
+         )
+division = sort(sample(nrow(carddf), nrow(carddf) * 0.80))
+
+training = carddf[division,]
+testing = carddf[-division,]
+```
+
+```{r}
+# Maintaining the binary response variable ratio
+
+table(training$Class)
+table(testing$Class)
+```
+
+```{r}
+# Training a logistic regression model to the training set
+lr = glm(Class~.,
+         training,
+         family = binomial)
+
+# Prediction on the testing set based on the new model
+model.probability = predict(lr, 
+                            newdata = testing, 
+                            type = "response")
+```
+
+```{r}
+prediction = rep("0", 56962)
+prediction[model.probability > 0.5] = "1"
+
+table(prediction, testing$Class)
+mean(prediction == testing$Class)
+```
+Overall accuracy = 99.9245%
+
+
+```{r}
+library(pROC)
+prediction = as.numeric(prediction)
+# auc(response, predictor)
+auc(testing$Class, prediction)
+```
+ROC AUC score = 0.7831
+Stark contrast to accuracy value
+
+
+
+```{r}
+predictTrain = predict(lr, type = "response")
+tapply(predictTrain, training$Class, mean)
+```
+
+```{r}
+library(ROCR)
+ROCRpred = prediction(predictTrain, training$Class)
+```
+
+```{r}
+ROCRperf = performance(ROCRpred, "tpr", "fpr")
+```
+
+```{r}
+# Plot ROC curve
+plot(ROCRperf, colorize = TRUE, 
+     main = "LogReg ROC Curve",
+     print.cutoffs.at = seq(0, 1, by = 0.1))
+abline(coef = c(0,1))
+```
+Changing the threshold of the logistic regression would be effective in this case
+
+
+
+
+
+
+
+
+```{r}
+PCA = prcomp(carddf[, -ncol(carddf)], scale = TRUE)
+summary(PCA)
+```
+PCA is ineffective for this dataset as none of the principal components show dominant variance explanation
+
+
+
+
+
+
+
+
+```{r}
+library(randomForest)
+
+RFmodel = randomForest(Class~., 
+                       data = training,
+                       ntree = 100,
+                       mtry = 4)
+RFmodel
+```
+
+```{r}
+varImpPlot(RFmodel)
+```
+
+```{r}
+p = predict(RFmodel, testing)
+
+mean(p == testing$Class)
+```
+Overall accuracy: 0.9996
+
+
+
+
+```{r}
+pred_prob = predict(RFmodel, testing, type = "prob")
+
+auc = auc(testing$Class, pred_prob[ ,2])
+auc
+plot(roc(testing$Class, pred_prob[ ,2]), main = "RF ROC Curve")
+```
+RF ROC AUC score = 0.9314
+
