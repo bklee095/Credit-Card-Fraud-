@@ -1,5 +1,6 @@
 ![Credit_Card_Fraud_Detection_](https://user-images.githubusercontent.com/74638365/138531325-62933e03-f3b9-4817-bf04-7aca5e36e667.png)
 
+![GitHub last commit](https://img.shields.io/github/last-commit/bklee095/R-Credit-Card-Fraud?style=plastic)
 
 # Credit card fraud detection supervised machine learning model accuracy performance comparison
 
