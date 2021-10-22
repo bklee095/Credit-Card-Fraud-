@@ -1,5 +1,7 @@
+![Credit_Card_Fraud_Detection_](https://user-images.githubusercontent.com/74638365/138531325-62933e03-f3b9-4817-bf04-7aca5e36e667.png)
 
-# Credit card fraud detection model accuracy performance comparison
+
+# Credit card fraud detection supervised machine learning model accuracy performance comparison
 
 # Dataset
 
@@ -58,24 +60,10 @@ carddf = df[, -c(1)]
 
 
 # Data Analysis
+![carbon](https://user-images.githubusercontent.com/74638365/138531508-f25a9f97-7f25-4ce2-a8db-762ab80b2280.png)
+![carbon(1)](https://user-images.githubusercontent.com/74638365/138531549-a0a29b74-fa77-43c9-b998-5b2ffbdaaa0b.png)
 
-```{r}
-# Setting a random seed for reproducibility
-set.seed(100)
 
-# 80-20 split for random (sample()) training and testing set
-division = sort(sample(nrow(carddf), nrow(carddf) * 0.80))
-
-training = carddf[division,]
-testing = carddf[-division,]
-```
-
-```{r}
-# Maintaining the binary response variable ratio in training and testing sets
-
-table(training$Class)
-table(testing$Class)
-```
 
 . | Negative (0) | Positive (1)
 --|----------|---------
@@ -87,33 +75,19 @@ Testing | 56,868 | 94
 <br/>
 <br/>
 
-### Logistic Regression
+## Logistic Regression
+![carbon(2)](https://user-images.githubusercontent.com/74638365/138531601-2083d70a-f26f-4bed-a3f0-ad1a59828767.png)
 
-```{r}
-# Training a logistic regression model to the training set
-lr = glm(Class~.,
-         training,
-         family = binomial)
-
-# Prediction against the testing set based on the new model
-model.probability = predict(lr, 
-                            newdata = testing, 
-                            type = "response")
-```
-
-```{r}
-prediction = rep("0", 56962)
-prediction[model.probability > 0.5] = "1"
-
-table(prediction, testing$Class)
-```
 
 Prediction | 0 | 1
 -------|-------|------
 0 | 56,857 | 34
 1 | 11 | 60
 
-Overall accuracy = (TP+TN)/(TP+FP+TN+FN) = 0.9992
+Overall accuracy
+
+(TP+TN)(TP+FP+TN+FN) = 0.9992
+
 
 <br/>
 <br/>
@@ -131,23 +105,9 @@ Area under the curve (AUC) score = 0.8191, showing stark contrast to the overall
 
 
 <br/><br/><br/>
+![carbon(3)](https://user-images.githubusercontent.com/74638365/138531623-0fb618b2-2886-42d4-a142-fcc4c2cd023c.png)
 
-```{r}
-library(ROCR)
-ROCRpred = prediction(predictTrain, training$Class)
-```
 
-```{r}
-ROCRperf = performance(ROCRpred, "tpr", "fpr")
-```
-
-```{r}
-# Plot ROC curve
-plot(ROCRperf, colorize = TRUE, 
-     main = "LogReg ROC Curve",
-     print.cutoffs.at = seq(0, 1, by = 0.1))
-abline(coef = c(0,1))
-```
 ![image](https://user-images.githubusercontent.com/74638365/138372326-4e08d81b-5bb3-4a52-a178-e0e4cda6e61f.png)
 <br/>
 _Logistic Regression model ROC curve with thresholds_
@@ -160,7 +120,7 @@ Changing the threshold of the logistic regression model would be ineffective in 
 
 <br/><br/><br/>
 
-### Principal Component Analysis (PCA)
+## Principal Component Analysis (PCA)
 
 With too many attributes and data entries, PCA can be performed to see if dimensionality reduction is possible.
 
@@ -175,16 +135,10 @@ PCA is ineffective for this dataset as none of the principal components show dom
 
 <br/><br/><br/>
 
-### Random Forest Classifier
+## Random Forest Classifier
+![carbon(4)](https://user-images.githubusercontent.com/74638365/138531668-534fa420-28df-4db3-b963-a1956499e743.png)
 
-```{r}
-library(randomForest)
 
-RFmodel = randomForest(Class~., 
-                       data = training,
-                       ntree = 100,
-                       mtry = 4)
-```
 
 Random forest classifier trained with the training set.
 
@@ -207,13 +161,8 @@ Overall accuracy = 0.9995
 
 Random forest yields comparable general detection accuracy performance with the logistic regression. 
 
-```{r}
-pred_prob = predict(RFmodel, testing, type = "prob")
 
-auc = auc(testing$Class, pred_prob[ ,2])
-auc
-plot(roc(testing$Class, pred_prob[ ,2]), main = "RF ROC Curve")
-```
+![carbon(5)](https://user-images.githubusercontent.com/74638365/138531701-6d25c977-2dbc-4655-beb6-7000f8096c2f.png)
 
 Area under the curve (AUC) score = 0.9344
 
@@ -221,7 +170,7 @@ Area under the curve (AUC) score = 0.9344
 <br/>
 _Random Forest model ROC curve_
 
-But a significantly higher AUC score.
+... But a significantly higher AUC score.
 
 
 <br/>
@@ -229,8 +178,12 @@ But a significantly higher AUC score.
 <br/>
 <br/>
 
-### Conclusion
+## Conclusion
 
 ROC AUC score refers to the area under the ROC curve. It shows the probability that a randomly chosen positive data entry will have a higher rank than a randomly chosen negative data entry for the given dataset. For this reason, ROC AUC score is often preferred over general accuracy metric for binary classification settings. 
 
 Random forest classifier yielded a higher detection accuracy, proving its worth and showing its robustness as a emsemble method.
+
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
